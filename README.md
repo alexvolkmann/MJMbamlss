@@ -1,0 +1,64 @@
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+# MJMbamlss
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+The goal of MJMbamlss is to provide a working implementation of the
+proposed approach found in [Volkmann, Umlauf, Greven
+(2023)](https://arxiv.org/abs/2311.06409): “Flexible joint models for
+multivariate longitudinal and time-to-event data using multivariate
+functional principal components”.
+
+You can find more information on the package in the README.txt file in
+the inst/ folder. As a general outline for the usage of MJMbamlss refer
+to the following steps:
+
+1.  Preprocess the data to be of long format with fixed variable name
+    ‘marker’ for the longitudinal outcomes factor variable.
+
+2.  To estimate the MFPC basis, first remove observations with too
+    little information. Then use wrapper function ‘preproc\_MFPCA’ to
+    estimate MFPCs. The number of MFPCs can be determined looking at the
+    ratio of explained variance.
+
+3.  Prepare the model formula. The formula is a list specifying each
+    additive predictor separately, except for marker-specific
+    predictors. That is, the baseline hazard can be specified with
+    ‘Surv2(.)’ functions on the left of the ‘\~’, baseline covariates
+    are specified by ‘gamma \~’, error measurments with ‘sigma \~’. The
+    alpha and mu predictors need to specify the model formulas with
+    interactions of the variable ‘marker’, so exclude the intercept and
+    specify all model terms as marker-interactions. Use the smooth terms
+    ‘bs = “unc\_pcre”’ for the functional principal components based
+    random effects. Each ‘unc\_pcre’ term needs to be supplied with an
+    ‘xt’ argument ‘“mfpc”’ that contains a multiFunData object of the
+    corresponding MFPC. Note also that each smooth term should contain
+    the ‘xt’ argument ‘“scale” = FALSE’.
+
+4.  Prepare the data for the model fit. Use the wrapper function
+    ‘attach\_wfpc’ to add evaluations of the MFPCs to the data set.
+
+5.  Fit the model using ‘bamlss’ by specifying the family ‘mjm\_bamlss’.
+
+Please use the provided files in the folder inst/ as a reference for
+your analysis.
+
+## Installation
+
+You can install the stable release version of MJMbamlss from
+[CRAN](https://cran.r-project.org/) with:
+
+``` r
+install.packages("MJMbamlss")
+```
+
+You can install the development version of MJMbamlss from
+[GitHub](https://github.com/) with:
+
+``` r
+# install.packages("devtools")
+devtools::install_github("alexvolkmann/MJMbamlss")
+```

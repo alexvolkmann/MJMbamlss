@@ -10,6 +10,11 @@ propose_mjm <- function(predictor, x, y, eta, eta_timegrid, eta_T, eta_T_mu,
                         ) {
 
   nu <- x$state$nu
+  uni.slice <- utils::getFromNamespace("uni.slice", "bamlss")
+  uni.slice_tau2_logPost <- utils::getFromNamespace("uni.slice_tau2_logPost",
+                                                    "bamlss")
+  matrix_inv <- utils::getFromNamespace("matrix_inv", "bamlss")
+  sum_diag <- utils::getFromNamespace("sum_diag", "bamlss")
 
   ## Sample variance parameter.
   if(!x$fixed & is.null(x$sp) & length(x$S)) {
@@ -27,9 +32,9 @@ propose_mjm <- function(predictor, x, y, eta, eta_timegrid, eta_T, eta_T_mu,
       } else {
         i <- grep("tau2", names(x$state$parameters))
         for(j in i) {
-          x$state$parameters <- bamlss:::uni.slice(
+          x$state$parameters <- uni.slice(
             x$state$parameters, x, NULL, NULL, NULL, id = predictor, j,
-            logPost = bamlss:::uni.slice_tau2_logPost, lower = 0, ll = 0)
+            logPost = uni.slice_tau2_logPost, lower = 0, ll = 0)
         }
       } }
   }
@@ -116,7 +121,7 @@ propose_mjm <- function(predictor, x, y, eta, eta_timegrid, eta_T, eta_T_mu,
   x_H <- x_H + x$hess(score = NULL, x$state$parameters, full = FALSE)
 
   # Compute the inverse of the hessian.
-  Sigma_prop <- bamlss:::matrix_inv(x_H, index = NULL)
+  Sigma_prop <- matrix_inv(x_H, index = NULL)
 
   # Get new location parameter for proposal
   mu_prop <- drop(b_old + nu * Sigma_prop %*% x_score )
@@ -300,7 +305,7 @@ propose_mjm <- function(predictor, x, y, eta, eta_timegrid, eta_T, eta_T_mu,
          })
   x_score <- x_score + x$grad(score = NULL, x$state$parameters, full = FALSE)
   x_H <- x_H + x$hess(score = NULL, x$state$parameters, full = FALSE)
-  Sigma <- bamlss:::matrix_inv(x_H, index = NULL)
+  Sigma <- matrix_inv(x_H, index = NULL)
 
   # Get new location parameter for proposal
   mu <- drop(b_prop + nu * Sigma %*% x_score)
@@ -318,16 +323,16 @@ propose_mjm <- function(predictor, x, y, eta, eta_timegrid, eta_T, eta_T_mu,
 
   ## Save edf.
   x$state$edf <- if (predictor == "sigma") {
-    bamlss:::sum_diag(x_H0 %*% Sigma)
+    sum_diag(x_H0 %*% Sigma)
   } else if (predictor == "mu") {
     if (pred_l == "fpc_re") {
-      bamlss:::sum_diag(diag(int_i$hess_int) %*% Sigma)
+      sum_diag(diag(int_i$hess_int) %*% Sigma)
     } else {
-      bamlss:::sum_diag(matrix(int_i$hess_int, ncol = length(b_prop)) %*%
+      sum_diag(matrix(int_i$hess_int, ncol = length(b_prop)) %*%
                           Sigma)
     }
   } else {
-    bamlss:::sum_diag(matrix(int_i$hess_int, ncol = length(b_prop)) %*%
+    sum_diag(matrix(int_i$hess_int, ncol = length(b_prop)) %*%
                         Sigma)
   }
 

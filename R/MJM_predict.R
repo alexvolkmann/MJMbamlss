@@ -50,7 +50,7 @@ MJM_predict <- function(object, newdata,
   nmarker <- attr(object$y, "nmarker")
   marker_levels <- levels(attr(object$y, "marker"))
   timevar_mu <- attr(object$y, "timevar")["mu"]
-
+  predict.bamlss <- utils::getFromNamespace("predict.bamlss", "bamlss")
 
   if(length(type) > 1)
     type <- type[1]
@@ -105,7 +105,7 @@ MJM_predict <- function(object, newdata,
 
     }
 
-    return(bamlss:::predict.bamlss(object, newdata = newdata, type = type,
+    return(predict.bamlss(object, newdata = newdata, type = type,
                                    FUN = FUN, cores = cores, chunks = chunks,
                                    verbose = verbose, ...))
   }
@@ -162,13 +162,13 @@ MJM_predict <- function(object, newdata,
   #   dsurv_long[[marker_name]] <- rep(marker_levels, each = nrow(dsurv))
   #   timegrid_long <- rep(timegrid, nmarker)
   #
-  #   pred.setup <- bamlss:::predict.bamlss(object, data, type = "link",
+  #   pred.setup <- predict.bamlss(object, data, type = "link",
   #                                         get.bamlss.predict.setup = TRUE, ...)
   #
   #   enames <- pred.setup$enames
   #
   #   pred_gamma <- with(pred.setup,
-  #                      bamlss:::.predict.bamlss(
+  #                      .predict.bamlss(
   #                        "gamma", object$x$gamma, samps, enames$gamma,
   #                        intercept, nsamps, dsurv))
   #

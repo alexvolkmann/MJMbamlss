@@ -1,15 +1,15 @@
 Package: MJMbamlss
 Type: Package
-Title: Multivariate Joint Models with bamlss
+Title: Multivariate Joint Models with 'bamlss'
 Version: 0.1.0
-Authors@R: c(person(given = "Nikolaus", family = "Umlauf", role = c("aut", "cre"), email = "Nikolaus.Umlauf@uibk.ac.at",
+Authors@R: c(person(given = "Nikolaus", family = "Umlauf", role = c("aut"), email = "Nikolaus.Umlauf@uibk.ac.at",
          comment = c(ORCID = "0000-0003-2160-9803")),
-	person("Alexander", "Volkmann", email = "alexander.volkmann@hu-berlin.de", role = c("aut")))
-Description: Multivariate joint models of longitudinal and time-to-event data based on functional principal components implemented with bamlss.
+	person("Alexander", "Volkmann", email = "alexander.volkmann@hu-berlin.de", role = c("aut", "cre")))
+Description: Multivariate joint models of longitudinal and time-to-event data based on functional principal components implemented with 'bamlss'.
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.2.0
+RoxygenNote: 7.2.3
 Depends: R (>= 3.5)
 LinkingTo: 
     Rcpp,

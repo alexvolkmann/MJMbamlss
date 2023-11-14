@@ -30,8 +30,7 @@ simMultiJM(
  }), nmark),
   mu = rep(list(function(t, x) {
      1.25 + 0.6 * sin(x[, 2]) + (-0.01) * t
- }),
-    nmark),
+ }), nmark),
   sigma = function(t, x) {
      0.3 + 0 * t + I(x$marker == "m2") * 0.2
  },

@@ -27,9 +27,12 @@ MJM_mcmc <- function(x, y, family, start = NULL, weights = NULL, offset = NULL,
   gq_weights <- attr(y, "gq_weights")
   nw <- length(gq_weights)
   status <- attr(y, "status")
+  get.eta <- utils::getFromNamespace("get.eta", "bamlss")
+  get.log.prior <- utils::getFromNamespace("get.log.prior", "bamlss")
+
 
   ## Compute additive predictors.
-  eta <- bamlss:::get.eta(x, expand = FALSE)
+  eta <- get.eta(x, expand = FALSE)
 
 
   ## For the time dependent part, compute
@@ -269,8 +272,7 @@ MJM_mcmc <- function(x, y, family, start = NULL, weights = NULL, offset = NULL,
     }
     if(save) {
       logLik.samps[js] <- logLik_old
-      logPost.samps[js] <- as.numeric(logLik.samps[js] +
-                                        bamlss:::get.log.prior(x))
+      logPost.samps[js] <- as.numeric(logLik.samps[js] + get.log.prior(x))
     }
   }
 

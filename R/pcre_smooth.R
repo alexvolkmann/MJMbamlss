@@ -16,6 +16,7 @@
 #'  \code{\link[mgcv]{smooth.construct}}
 #' @param data  see \code{\link[mgcv]{smooth.construct}}
 #' @param knots see \code{\link[mgcv]{smooth.construct}}
+#' @param ... see \code{\link[mgcv]{smooth.construct}}
 #' @method smooth.construct unc_pcre.smooth.spec
 #' @return An object of class \code{"random.effect"}. See
 #' \code{\link[mgcv]{smooth.construct}}
@@ -25,7 +26,7 @@
 #' @export
 #' @importFrom mgcv tensor.prod.model.matrix
 #' @importFrom stats as.formula model.matrix
-smooth.construct.unc_pcre.smooth.spec <- function(object, data, knots) {
+smooth.construct.unc_pcre.smooth.spec <- function(object, data, knots, ...) {
   if (!is.null(object$id))
     stop("random effects don't work with ids.")
   form <- as.formula(

@@ -23,6 +23,8 @@ MJM_opt <- function(x, y, start = NULL, eps = 0.0001, maxit = 1500,
   marker <- attr(y, "marker")
   logLik <- NULL
   edf <- 0
+  get.all.par <- utils::getFromNamespace("get.all.par", "bamlss")
+  get.hessian <- utils::getFromNamespace("get.hessian", "bamlss")
 
   if(length(nu) != 5) {
     stop("Please provide the optimizing step length for each predictor.")
@@ -109,7 +111,8 @@ MJM_opt <- function(x, y, start = NULL, eps = 0.0001, maxit = 1500,
     }
   }
 
-  eta <- bamlss:::get.eta(x, expand = FALSE)
+  get.eta <- utils::getFromNamespace("get.eta", "bamlss")
+  eta <- get.eta(x, expand = FALSE)
 
   # Standardizing the Survival design matrices
   eta_timegrid_mu_unst <- eta_timegrid_mu
@@ -158,7 +161,8 @@ MJM_opt <- function(x, y, start = NULL, eps = 0.0001, maxit = 1500,
   }
 
   # Compare if update increases logPost
-  LogPrioOLD <- bamlss:::get.log.prior(x)
+  get.log.prior <- utils::getFromNamespace("get.log.prior", bamlss)
+  LogPrioOLD <- get.log.prior(x)
   LogLikOLD <- get_LogLik(eta_timegrid, eta_T_mu, eta)
   etaUP <- eta
 
@@ -423,7 +427,7 @@ MJM_opt <- function(x, y, start = NULL, eps = 0.0001, maxit = 1500,
                            eta = eta)
 
       cat("It ", iter,", LogLik ", logLik, ", Post",
-          as.numeric(logLik + bamlss:::get.log.prior(x)), "\n")
+          as.numeric(logLik + get.log.prior(x)), "\n")
     }
 
 
@@ -447,7 +451,7 @@ MJM_opt <- function(x, y, start = NULL, eps = 0.0001, maxit = 1500,
 
     # Parameter trace to follow the estimated parameter values
     if (par_trace) {
-      it_param[[iter]] <- bamlss:::get.all.par(x)
+      it_param[[iter]] <- get.all.par(x)
     }
 
   }
@@ -458,10 +462,10 @@ MJM_opt <- function(x, y, start = NULL, eps = 0.0001, maxit = 1500,
                          eta_T_mu = eta_T_mu,
                          eta = eta)
   }
-  logPost <- as.numeric(logLik + bamlss:::get.log.prior(x))
-  return(list("fitted.values" = eta, "parameters" = bamlss:::get.all.par(x),
+  logPost <- as.numeric(logLik + get.log.prior(x))
+  return(list("fitted.values" = eta, "parameters" = get.all.par(x),
               "logLik" = logLik, "logPost" = logPost,
-              "hessian" = bamlss:::get.hessian(x),
+              "hessian" = get.hessian(x),
               "converged" = iter < maxit,
               "scaling" = attr(eta, "std_long"),
               "par_trace" = if (par_trace) it_param else NULL,

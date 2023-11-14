@@ -5,6 +5,11 @@ MJM_transform <- function(object, subdivisions = 7, timevar = NULL, tau = NULL,
                           idvar = NULL, uni = FALSE, std_surv = TRUE, ...) {
 
 
+  design.construct <- utils::getFromNamespace("design.construct", "bamlss")
+  drop.terms.bamlss <- utils::getFromNamespace("drop.terms.bamlss", "bamlss")
+  make.prior <- utils::getFromNamespace("make.prior", "bamlss")
+  grep2 <- utils::getFromNamespace("grep2", "bamlss")
+
   # Gaussian Quadrature
   stopifnot(requireNamespace("statmod"))
   gq <- statmod::gauss.quad(subdivisions)
@@ -99,7 +104,7 @@ MJM_transform <- function(object, subdivisions = 7, timevar = NULL, tau = NULL,
   ## Recompute design matrixes for lambda, gamma, alpha.
   for(j in c("lambda", "gamma", "alpha")) {
     which_take <- if (j == "alpha") take_l else take
-    object$x[[j]] <- bamlss:::design.construct(
+    object$x[[j]] <- design.construct(
       object$terms,
       data = object$model.frame[which_take, , drop = FALSE],
       model.matrix = TRUE,
@@ -139,7 +144,7 @@ MJM_transform <- function(object, subdivisions = 7, timevar = NULL, tau = NULL,
     }
     if(ncol(object$x$lambda$smooth.construct$model.matrix$X) < 1) {
       object$x$lambda$smooth.construct$model.matrix <- NULL
-      object$x$lambda$terms <- bamlss:::drop.terms.bamlss(
+      object$x$lambda$terms <- drop.terms.bamlss(
         object$x$lambda$terms, pterms = FALSE, keep.intercept = FALSE)
     } else {
       object$x$lambda$smooth.construct$model.matrix$term <-
@@ -147,7 +152,7 @@ MJM_transform <- function(object, subdivisions = 7, timevar = NULL, tau = NULL,
              object$x$lambda$smooth.construct$model.matrix$term, fixed = TRUE)
       object$x$lambda$smooth.construct$model.matrix$state$parameters <-
         object$x$lambda$smooth.construct$model.matrix$state$parameters[-1]
-      object$x$lambda$terms <- bamlss:::drop.terms.bamlss(
+      object$x$lambda$terms <- drop.terms.bamlss(
         object$x$lambda$terms, pterms = TRUE, sterms = TRUE,
         keep.intercept = FALSE)
     }
@@ -211,7 +216,7 @@ MJM_transform <- function(object, subdivisions = 7, timevar = NULL, tau = NULL,
     if(!is.null(object$x[[i]]$smooth.construct$model.matrix)) {
       object$x[[i]]$smooth.construct$model.matrix <- param_time_transform_mjm(
         object$x[[i]]$smooth.construct$model.matrix,
-        bamlss:::drop.terms.bamlss(object$x[[i]]$terms, sterms = FALSE,
+        drop.terms.bamlss(object$x[[i]]$terms, sterms = FALSE,
                                    keep.response = FALSE), object$model.frame,
         if(i == "lambda") grid else grid_l, yname,
         if(i != "mu") timevar else timevar_mu,
@@ -233,7 +238,7 @@ MJM_transform <- function(object, subdivisions = 7, timevar = NULL, tau = NULL,
         object$x[[j]]$smooth.construct[[sj]]$state$parameters[tau_pos] <-
           tau[[j]][[sj]]
       }
-      priors <- bamlss:::make.prior(object$x[[j]]$smooth.construct[[sj]])
+      priors <- make.prior(object$x[[j]]$smooth.construct[[sj]])
       object$x[[j]]$smooth.construct[[sj]]$prior <- priors$prior
       object$x[[j]]$smooth.construct[[sj]]$grad <- priors$grad
       object$x[[j]]$smooth.construct[[sj]]$hess <- priors$hess
@@ -279,7 +284,7 @@ MJM_transform <- function(object, subdivisions = 7, timevar = NULL, tau = NULL,
 
         if(logPost) {
           pn2 <- paste(pn0, "tau2", sep = ".")
-          tpar <- par[bamlss:::grep2(c(pn, pn2), names(par), fixed = TRUE)]
+          tpar <- par[grep2(c(pn, pn2), names(par), fixed = TRUE)]
           lprior <- lprior + object$x[[j]]$smooth.construct[[sj]]$prior(tpar)
         }
       }

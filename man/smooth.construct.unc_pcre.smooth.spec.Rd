@@ -4,7 +4,7 @@
 \alias{smooth.construct.unc_pcre.smooth.spec}
 \title{mgcv-style constructor for PC-basis functional random effects (no constraint)}
 \usage{
-\method{smooth.construct}{unc_pcre.smooth.spec}(object, data, knots)
+\method{smooth.construct}{unc_pcre.smooth.spec}(object, data, knots, ...)
 }
 \arguments{
 \item{object}{a smooth specification object, see
@@ -13,6 +13,8 @@
 \item{data}{see \code{\link[mgcv]{smooth.construct}}}
 
 \item{knots}{see \code{\link[mgcv]{smooth.construct}}}
+
+\item{...}{see \code{\link[mgcv]{smooth.construct}}}
 }
 \value{
 An object of class \code{"random.effect"}. See

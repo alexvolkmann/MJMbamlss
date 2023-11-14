@@ -9,6 +9,10 @@ update_mjm_lambda <- function(x, y, eta, eta_timegrid, eta_T_mu, survtime,
   b <- bamlss::get.state(x, "b")
   b_p <- length(b)
   nu <- x$nu
+  matrix_inv <- utils::getFromNamespace("matrix_inv", "bamlss")
+  sum_diag <- utils::getFromNamespace("sum_diag", "bamlss")
+  get.ic2 <- utils::getFromNamespace("get.ic2", "bamlss")
+  tau2.optim <- utils::getFromNamespace("tau2.optim", "bamlss")
 
   int_i <- survint_C(pred = "lambda", pre_fac = exp(eta$gamma),
                       omega = exp(eta_timegrid),
@@ -34,7 +38,7 @@ update_mjm_lambda <- function(x, y, eta, eta_timegrid, eta_T_mu, survtime,
       par[x$pid$tau2] <- tau2
       x_score <- x_score0 + x$grad(score = NULL, par, full = FALSE)
       x_H <- x_H0 + x$hess(score = NULL, par, full = FALSE)
-      Sigma <- bamlss:::matrix_inv(x_H, index = NULL)
+      Sigma <- matrix_inv(x_H, index = NULL)
       Hs <- Sigma %*% x_score
       if(update_nu) {
         # Function for updating step length
@@ -60,10 +64,10 @@ update_mjm_lambda <- function(x, y, eta, eta_timegrid, eta_T_mu, survtime,
       eta$lambda <- eta$lambda - fitted(x$state) + fit
       eta_timegrid <- eta_timegrid - x$state$fitted_timegrid +
         fitted_timegrid
-      edf1 <- bamlss:::sum_diag(x_H0 %*% Sigma)
+      edf1 <- sum_diag(x_H0 %*% Sigma)
       edf <- edf0 + edf1
       logLik <- get_LogLik(eta_timegrid, eta_T_mu, eta)
-      ic <- bamlss:::get.ic2(logLik, edf, n = length(eta$mu), type = "AICc")
+      ic <- get.ic2(logLik, edf, n = length(eta$mu), type = "AICc")
 
       # First time running the function or new minimum
       if (is.null(env$ic_val) || (ic < env$ic_val)) {
@@ -85,7 +89,7 @@ update_mjm_lambda <- function(x, y, eta, eta_timegrid, eta_T_mu, survtime,
     }
 
     ic0 <- tau_update_opt(get.state(x, "tau2"))
-    tau2 <- bamlss:::tau2.optim(tau_update_opt, start = get.state(x, "tau2"))
+    tau2 <- tau2.optim(tau_update_opt, start = get.state(x, "tau2"))
     return(env$state)
 
   }
@@ -93,7 +97,7 @@ update_mjm_lambda <- function(x, y, eta, eta_timegrid, eta_T_mu, survtime,
   ## Newton-Raphson.
   x_score <- x_score0 + x$grad(score = NULL, x$state$parameters, full = FALSE)
   x_H <- x_H0 + x$hess(score = NULL, x$state$parameters, full = FALSE)
-  Sigma <- bamlss:::matrix_inv(x_H, index = NULL)
+  Sigma <- matrix_inv(x_H, index = NULL)
   Hs <- Sigma %*% x_score
 
   if(update_nu) {
@@ -119,7 +123,7 @@ update_mjm_lambda <- function(x, y, eta, eta_timegrid, eta_T_mu, survtime,
   x$state$fitted_timegrid <- drop(x$Xgrid %*% b)
   x$state$fitted.values <- drop(x$X %*% b)
   x$state$hessian <- x_H
-  x$state$edf <- bamlss:::sum_diag(x_H0 %*% Sigma)
+  x$state$edf <- sum_diag(x_H0 %*% Sigma)
   return(x$state)
 
 }
@@ -137,6 +141,10 @@ update_mjm_gamma <- function(x, y, eta, eta_timegrid, eta_T_mu, survtime,
   take_last <- attr(y, "take_last")
   exp_eta_gamma <- exp(eta$gamma)
   nu <- x$nu
+  matrix_inv <- utils::getFromNamespace("matrix_inv", "bamlss")
+  sum_diag <- utils::getFromNamespace("sum_diag", "bamlss")
+  get.ic2 <- utils::getFromNamespace("get.ic2", "bamlss")
+  tau2.optim <- utils::getFromNamespace("tau2.optim", "bamlss")
 
   int_i <- survint_C(pred = "gamma", pre_fac = exp_eta_gamma, pre_vec = x$X,
                       omega = exp(eta_timegrid),
@@ -158,7 +166,7 @@ update_mjm_gamma <- function(x, y, eta, eta_timegrid, eta_T_mu, survtime,
       par[x$pid$tau2] <- tau2
       x_score <- x_score0 + x$grad(score = NULL, par, full = FALSE)
       x_H <- x_H0 + x$hess(score = NULL, par, full = FALSE)
-      Sigma <- bamlss:::matrix_inv(x_H, index = NULL)
+      Sigma <- matrix_inv(x_H, index = NULL)
       Hs <- Sigma %*% x_score
       if(update_nu) {
         # Function for updating step length
@@ -178,10 +186,10 @@ update_mjm_gamma <- function(x, y, eta, eta_timegrid, eta_T_mu, survtime,
       b2 <- drop(b + nu * Hs)
       fit <- drop(x$X %*% b2)
       eta$gamma <- eta$gamma - fitted(x$state) + fit
-      edf1 <- bamlss:::sum_diag(x_H0 %*% Sigma)
+      edf1 <- sum_diag(x_H0 %*% Sigma)
       edf <- edf0 + edf1
       logLik <- get_LogLik(eta_timegrid, eta_T_mu, eta)
-      ic <- bamlss:::get.ic2(logLik, edf, n = length(eta$mu), type = "AICc")
+      ic <- get.ic2(logLik, edf, n = length(eta$mu), type = "AICc")
 
       # First time running the function or new minimum
       if (is.null(env$ic_val) || (ic < env$ic_val)) {
@@ -202,14 +210,14 @@ update_mjm_gamma <- function(x, y, eta, eta_timegrid, eta_T_mu, survtime,
     }
 
     ic0 <- tau_update_opt(get.state(x, "tau2"))
-    tau2 <- bamlss:::tau2.optim(tau_update_opt, start = get.state(x, "tau2"))
+    tau2 <- tau2.optim(tau_update_opt, start = get.state(x, "tau2"))
     return(env$state)
 
   }
 
   x_score <- x_score0 + x$grad(score = NULL, x$state$parameters, full = FALSE)
   x_H <- x_H0 + x$hess(score = NULL, x$state$parameters, full = FALSE)
-  Sigma <- bamlss:::matrix_inv(x_H, index = NULL)
+  Sigma <- matrix_inv(x_H, index = NULL)
   Hs <- Sigma %*% x_score
 
   if(update_nu) {
@@ -231,7 +239,7 @@ update_mjm_gamma <- function(x, y, eta, eta_timegrid, eta_T_mu, survtime,
   x$state$parameters[seq_len(b_p)] <- b
   x$state$fitted.values <- drop(x$X %*% b)
   x$state$hessian <- x_H
-  x$state$edf <- bamlss:::sum_diag(x_H0 %*% Sigma)
+  x$state$edf <- sum_diag(x_H0 %*% Sigma)
   return(x$state)
 
 }
@@ -252,6 +260,10 @@ update_mjm_alpha <- function(x, y, eta, eta_timegrid, eta_timegrid_lambda,
   nsubj <- attr(y, "nsubj")
   n_w <- length(attr(y, "gq_weights"))
   nu <- x$nu
+  matrix_inv <- utils::getFromNamespace("matrix_inv", "bamlss")
+  sum_diag <- utils::getFromNamespace("sum_diag", "bamlss")
+  get.ic2 <- utils::getFromNamespace("get.ic2", "bamlss")
+  tau2.optim <- utils::getFromNamespace("tau2.optim", "bamlss")
 
   int_i <- survint_C(pred = "long", pre_fac = exp(eta$gamma),
                       omega = exp(eta_timegrid),
@@ -274,7 +286,7 @@ update_mjm_alpha <- function(x, y, eta, eta_timegrid, eta_timegrid_lambda,
       par[x$pid$tau2] <- tau2
       x_score <- x_score0 + x$grad(score = NULL, par, full = FALSE)
       x_H <- x_H0 + x$hess(score = NULL, par, full = FALSE)
-      Sigma <- bamlss:::matrix_inv(x_H, index = NULL)
+      Sigma <- matrix_inv(x_H, index = NULL)
       Hs <- Sigma %*% x_score
       if(update_nu) {
         # Function for updating step length
@@ -310,10 +322,10 @@ update_mjm_alpha <- function(x, y, eta, eta_timegrid, eta_timegrid_lambda,
                                           nrow = nsubj*n_w,
                                           ncol = nmarker))
       eta_timegrid <- eta_timegrid_lambda + eta_timegrid_long
-      edf1 <- bamlss:::sum_diag(x_H0 %*% Sigma)
+      edf1 <- sum_diag(x_H0 %*% Sigma)
       edf <- edf0 + edf1
       logLik <- get_LogLik(eta_timegrid, eta_T_mu, eta)
-      ic <- bamlss:::get.ic2(logLik, edf, n = length(eta$mu), type = "AICc")
+      ic <- get.ic2(logLik, edf, n = length(eta$mu), type = "AICc")
 
       # First time running the function or new minimum
       if (is.null(env$ic_val) || (ic < env$ic_val)) {
@@ -335,7 +347,7 @@ update_mjm_alpha <- function(x, y, eta, eta_timegrid, eta_timegrid_lambda,
     }
 
     ic0 <- tau_update_opt(get.state(x, "tau2"))
-    tau2 <- bamlss:::tau2.optim(tau_update_opt, start = get.state(x, "tau2"))
+    tau2 <- tau2.optim(tau_update_opt, start = get.state(x, "tau2"))
     return(env$state)
 
   }
@@ -345,7 +357,7 @@ update_mjm_alpha <- function(x, y, eta, eta_timegrid, eta_timegrid_lambda,
   x_score <- x_score0 + x$grad(score = NULL, x$state$parameters, full = FALSE)
   p_H <- x$hess(score = NULL, x$state$parameters, full = FALSE)
   x_H <- x_H0 + p_H
-  Sigma <- bamlss:::matrix_inv(x_H, index = NULL)
+  Sigma <- matrix_inv(x_H, index = NULL)
   Hs <- Sigma %*% x_score
 
   if(update_nu) {
@@ -376,7 +388,7 @@ update_mjm_alpha <- function(x, y, eta, eta_timegrid, eta_timegrid_lambda,
   x$state$fitted_timegrid <- drop(x$Xgrid %*% b)
   x$state$fitted.values <- drop(x$X %*% b)
   x$state$hessian <- x_H
-  x$state$edf <- bamlss:::sum_diag(x_H0 %*% Sigma)
+  x$state$edf <- sum_diag(x_H0 %*% Sigma)
   if(coll) {
     x$state$coll <- list("X" = eta_T_mu, "I" = int_i$hess_int, "P" = p_H)
   }
@@ -405,6 +417,10 @@ update_mjm_mu <- function(x, y, eta, eta_timegrid, eta_timegrid_lambda,
   nu <- x$nu
   long_bar <- attr(eta, "std_long")$long_bar
   long_sds <- attr(eta, "std_long")$long_sds
+  matrix_inv <- utils::getFromNamespace("matrix_inv", "bamlss")
+  sum_diag <- utils::getFromNamespace("sum_diag", "bamlss")
+  get.ic2 <- utils::getFromNamespace("get.ic2", "bamlss")
+  tau2.optim <- utils::getFromNamespace("tau2.optim", "bamlss")
 
   if (any(class(x) == "unc_pcre.random.effect")) {
     int_i <- survint_C(pred = "fpc_re", pre_fac = exp(eta$gamma),
@@ -447,7 +463,7 @@ update_mjm_mu <- function(x, y, eta, eta_timegrid, eta_timegrid_lambda,
       par[x$pid$tau2] <- tau2
       x_score <- x_score0 + x$grad(score = NULL, par, full = FALSE)
       x_H <- x_H0 + x$hess(score = NULL, par, full = FALSE)
-      Sigma <- bamlss:::matrix_inv(x_H, index = NULL)
+      Sigma <- matrix_inv(x_H, index = NULL)
       Hs <- Sigma %*% x_score
       if(update_nu) {
         # Function for updating step length
@@ -506,11 +522,11 @@ update_mjm_mu <- function(x, y, eta, eta_timegrid, eta_timegrid_lambda,
       edf1 <- if (any(class(x) == "unc_pcre.random.effect")) {
         sum(diag(x_H0) * diag(Sigma))
       } else {
-        bamlss:::sum_diag(x_H0 %*% Sigma)
+        sum_diag(x_H0 %*% Sigma)
       }
       edf <- edf0 + edf1
       logLik <- get_LogLik(eta_timegrid, eta_T_mu, eta)
-      ic <- bamlss:::get.ic2(logLik, edf, n = length(eta$mu), type = "AICc")
+      ic <- get.ic2(logLik, edf, n = length(eta$mu), type = "AICc")
 
       # First time running the function or new minimum
       if (is.null(env$ic_val) || (ic < env$ic_val)) {
@@ -533,7 +549,7 @@ update_mjm_mu <- function(x, y, eta, eta_timegrid, eta_timegrid_lambda,
     }
 
     ic0 <- tau_update_opt(get.state(x, "tau2"))
-    tau2 <- bamlss:::tau2.optim(tau_update_opt, start = get.state(x, "tau2"))
+    tau2 <- tau2.optim(tau_update_opt, start = get.state(x, "tau2"))
     return(env$state)
 
   }
@@ -542,7 +558,7 @@ update_mjm_mu <- function(x, y, eta, eta_timegrid, eta_timegrid_lambda,
   # Newton Raphson
   x_score <- x_score0 + x$grad(score = NULL, x$state$parameters, full = FALSE)
   x_H <- x_H0 + x$hess(score = NULL, x$state$parameters, full = FALSE)
-  Sigma <- bamlss:::matrix_inv(x_H, index = NULL)
+  Sigma <- matrix_inv(x_H, index = NULL)
   Hs <- Sigma %*% x_score
 
   if(update_nu) {
@@ -587,7 +603,7 @@ update_mjm_mu <- function(x, y, eta, eta_timegrid, eta_timegrid_lambda,
   x$state$fitted.values <- drop(x$X %*% b)
   x$state$fitted_T <- drop(x$XT %*% b)
   x$state$hessian <- x_H
-  x$state$edf <- bamlss:::sum_diag(x_H0 %*% Sigma)
+  x$state$edf <- sum_diag(x_H0 %*% Sigma)
 
   return(x$state)
 
@@ -604,6 +620,10 @@ update_mjm_sigma <- function(x, y, eta, eta_timegrid, eta_T_mu, survtime,
 
   b <- bamlss::get.state(x, "b")
   nu <- x$nu
+  matrix_inv <- utils::getFromNamespace("matrix_inv", "bamlss")
+  sum_diag <- utils::getFromNamespace("sum_diag", "bamlss")
+  get.ic2 <- utils::getFromNamespace("get.ic2", "bamlss")
+  tau2.optim <- utils::getFromNamespace("tau2.optim", "bamlss")
 
   if (iwls) {
     score <- drop(-1 + (y[[1]][, "obs"] - eta$mu)^2 / (exp(eta$sigma)^2))
@@ -629,11 +649,11 @@ update_mjm_sigma <- function(x, y, eta, eta_timegrid, eta_T_mu, survtime,
       par[x$pid$tau2] <- tau2
       if (iwls) {
         xhess <- crossprod(x$X *rep(2, nrow(y)), x$X)
-        Sigma <- bamlss:::matrix_inv(1 * xhess, index = NULL)
+        Sigma <- matrix_inv(1 * xhess, index = NULL)
       } else {
         x_score <- x_score0 + x$grad(score = NULL, par, full = FALSE)
         x_H <- x_H0 + x$hess(score = NULL, par, full = FALSE)
-        Sigma <- bamlss:::matrix_inv(x_H, index = NULL)
+        Sigma <- matrix_inv(x_H, index = NULL)
         Hs <- Sigma %*% x_score
       }
       if(update_nu) {
@@ -657,16 +677,16 @@ update_mjm_sigma <- function(x, y, eta, eta_timegrid, eta_T_mu, survtime,
       # Calculate the Information Criterion with given edf and nu
       if (iwls) {
         b2 <- drop(Sigma %*% crossprod(x$X, z*2))
-        edf <- bamlss:::sum_diag((1 * xhess) %*% Sigma)
+        edf <- sum_diag((1 * xhess) %*% Sigma)
       } else {
         b2 <- drop(b + nu * Hs)
-        edf1 <- bamlss:::sum_diag(x_H0 %*% Sigma)
+        edf1 <- sum_diag(x_H0 %*% Sigma)
       }
       fit <- drop(x$X %*% b2)
       eta$sigma <- eta$sigma - fitted(x$state) + fit
       edf <- edf0 + edf1
       logLik <- get_LogLik(eta_timegrid, eta_T_mu, eta)
-      ic <- bamlss:::get.ic2(logLik, edf, n = length(eta$mu), type = "AICc")
+      ic <- get.ic2(logLik, edf, n = length(eta$mu), type = "AICc")
 
       # First time running the function or new minimum
       if (is.null(env$ic_val) || (ic < env$ic_val)) {
@@ -687,19 +707,19 @@ update_mjm_sigma <- function(x, y, eta, eta_timegrid, eta_T_mu, survtime,
     }
 
     ic0 <- tau_update_opt(get.state(x, "tau2"))
-    tau2 <- bamlss:::tau2.optim(tau_update_opt, start = get.state(x, "tau2"))
+    tau2 <- tau2.optim(tau_update_opt, start = get.state(x, "tau2"))
     return(env$state)
 
   }
 
   if (iwls) {
     xhess <- crossprod(x$X *rep(2, nrow(y)), x$X)
-    Sigma <- bamlss:::matrix_inv(1 * xhess, index = NULL)
+    Sigma <- matrix_inv(1 * xhess, index = NULL)
   } else {
     # Newton-Raphson
     x_score <- x_score0 + x$grad(score = NULL, x$state$parameters, full = FALSE)
     x_H <- x_H0 + x$hess(score = NULL, x$state$parameters, full = FALSE)
-    Sigma <- bamlss:::matrix_inv(x_H, index = NULL)
+    Sigma <- matrix_inv(x_H, index = NULL)
     Hs <- Sigma %*% x_score
   }
 
@@ -732,10 +752,10 @@ update_mjm_sigma <- function(x, y, eta, eta_timegrid, eta_T_mu, survtime,
   x$state$fitted.values <- drop(x$X %*% b)
   if (iwls) {
     x$state$hessian <- xhess
-    x$state$edf <- bamlss:::sum_diag((1 * xhess) %*% Sigma)
+    x$state$edf <- sum_diag((1 * xhess) %*% Sigma)
   } else {
     x$state$hessian <- x_H
-    x$state$edf <- bamlss:::sum_diag(x_H0 %*% Sigma)
+    x$state$edf <- sum_diag(x_H0 %*% Sigma)
   }
 
 

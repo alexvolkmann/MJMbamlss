@@ -64,11 +64,6 @@ void pmat(SEXP mat)
   Rprintf("\n");
 }
 
-void merr()
-{
-  char *m = "stopped";
-  error(m);
-}
 
 
 /* (2) Suvival integral function */
@@ -113,7 +108,7 @@ SEXP survint(SEXP pred, SEXP pre_fac, SEXP pre_vec, SEXP omega,
   ++nProtected;
 
   // Iterators.
-  int i, j, ii, jj, nr, nc;
+  int i, j, ii, jj, nr;
 
   // Pointers.
   double *weights_ptr = REAL(weights);
@@ -135,7 +130,6 @@ SEXP survint(SEXP pred, SEXP pre_fac, SEXP pre_vec, SEXP omega,
   double tmp = 0.0;
 
   nr = nrows(int_vec);
-  nc = ncols(int_vec);
 
   // Initialize output. 
   for(ii = 0; ii < p; ii++){
@@ -308,7 +302,7 @@ SEXP survint_re(SEXP pre_fac, SEXP omega,
   ++nProtected;
 
   // Iterators.
-  int i, j, ii, jj, nr, nc;
+  int i, j, ii, nr;
 
   // Pointers.
   double *weights_ptr = REAL(weights);
@@ -328,7 +322,6 @@ SEXP survint_re(SEXP pre_fac, SEXP omega,
   double tmp = 0.0;
 
   nr = nrows(int_vec);
-  nc = ncols(int_vec);
 
   // Initialize output. 
   for(i = 0; i < p; i++){
