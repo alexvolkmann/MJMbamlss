@@ -83,7 +83,19 @@ output. Defaults to FALSE.}
 \item{save_uniGAM}{TRUE to attach list of univariate additive models used to
 calculate the residuals. Defaults to FALSE.}
 }
+\value{
+An object of class \code{MFPCAfit} with additional attributes
+ depending on the arguments \code{save_uniFPCA}, \code{save_uniGAM},
+ \code{fit}.
+}
 \description{
 This function takes the data und uses the residuals of marker-specific
 additive models to estimate the covariance structure for a MFPCA
+}
+\examples{
+data(pbc_subset)
+mfpca <- preproc_MFPCA(pbc_subset, uni_mean = paste0(
+    "logy ~ 1 + sex + drug + s(obstime, k = 10, bs = 'ps') + ",
+    "s(age, k = 10, bs = 'ps')"),
+    pve_uni = 0.99, nbasis = 5, weights = TRUE, save_uniFPCA = TRUE)
 }

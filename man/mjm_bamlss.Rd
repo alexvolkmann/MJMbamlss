@@ -10,8 +10,30 @@ mjm_bamlss(...)
 \item{...}{All arguments are actually hard coded as needed by the
 implementation.}
 }
+\value{
+An object of class \code{family.bamlss}.
+}
 \description{
 This function specifies the different predictors and link functions as well
 as the corresponding transform/updating/sampling functions as well as the
 predict function.
+}
+\details{
+Family object to fit a flexible additive joint model for multivariate
+longitudinal and survival data under a Bayesian approach using multivariate
+functional principal components as presented in Volkmann, Umlauf, Greven
+(2023).
+}
+\examples{
+data(pbc_subset)
+mfpca <- preproc_MFPCA(pbc_subset, uni_mean = paste0(
+    "logy ~ 1 + sex + drug + s(obstime, k = 10, bs = 'ps') + ",
+    "s(age, k = 10, bs = 'ps')"),
+    pve_uni = 0.99, nbasis = 5, weights = TRUE, save_uniFPCA = TRUE)
+pbc_subset <- attach_wfpc(mfpca, p_long, n = 3)
+}
+\references{
+Volkmann, A., Umlauf, N., Greven, S. (2023). Flexible joint
+  models for multivariate longitudinal and time-to-event data using
+  multivariate functional principal components. <arXiv:2311.06409>
 }

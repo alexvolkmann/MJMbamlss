@@ -9,7 +9,7 @@
 
 # Specify location
 # setwd()
-# results_wd <- 
+# results_wd <-
 
 
 # Always
@@ -29,13 +29,14 @@ start <- 100
 stop <- 299
 number_cores <- 5
 setting <- "scen_II"
-dir.create(file.path(results_wd, setting), showWarnings = FALSE)
-dir.create(file.path(results_wd, setting, "data"), showWarnings = FALSE)
-dir.create(file.path(results_wd, setting, "/bamlss_tru"), showWarnings = FALSE)
-dir.create(file.path(results_wd, setting, "/bamlss_est1"), showWarnings = FALSE)
-dir.create(file.path(results_wd, setting, "/bamlss_est99"), 
-           showWarnings = FALSE)
-dir.create(file.path(results_wd, setting, "/jmb"), showWarnings = FALSE)
+# Uncomment to create the structure of the simulated objects
+# dir.create(file.path(results_wd, setting), showWarnings = FALSE)
+# dir.create(file.path(results_wd, setting, "data"), showWarnings = FALSE)
+# dir.create(file.path(results_wd, setting, "/bamlss_tru"), showWarnings = FALSE)
+# dir.create(file.path(results_wd, setting, "/bamlss_est1"), showWarnings = FALSE)
+# dir.create(file.path(results_wd, setting, "/bamlss_est99"),
+#            showWarnings = FALSE)
+# dir.create(file.path(results_wd, setting, "/jmb"), showWarnings = FALSE)
 
 Sys.time()
 sessionInfo()
@@ -68,10 +69,10 @@ m2sp2 <- splinefun(x, c(0, 0, 0, 0.5, 1, 0.7, 0.5, 0.3, 0.2, 0.1, 0.05))
 m2sp3 <- splinefun(x, c(0, 0, 0, 0, 0, 0, 0.5, 1, 0.7, 0.5, 0.3))
 
 m1 <- funData(argvals = argvals,
-              X = matrix(c(m1sp1(argvals), m1sp2(argvals), m1sp3(argvals)), 
+              X = matrix(c(m1sp1(argvals), m1sp2(argvals), m1sp3(argvals)),
                          nrow = 3, byrow = TRUE))
 m2 <- funData(argvals = argvals,
-              X = matrix(c(m2sp1(argvals), m2sp2(argvals), m2sp3(argvals)), 
+              X = matrix(c(m2sp1(argvals), m2sp2(argvals), m2sp3(argvals)),
                          nrow = 3, byrow = TRUE))
 
 # True multivariate covariance structure
@@ -83,10 +84,10 @@ m <- MFPCA_cov(cov = cov, basis_funs = list(m1, m2))
 parallel_data <- function(i) {
   set.seed(i)
   # Simulate the data
-  d_sim <- simMultiJM(nsub = n, times = seq(0, 1, by = 0.01), 
+  d_sim <- simMultiJM(nsub = n, times = seq(0, 1, by = 0.01),
                                  max_obs = 15, probmiss = 0.75, maxfac = 3,
-                                 nmark = 2, long_assoc = "FPC", M = 6, 
-                                 FPC_bases = m$functions, FPC_evals = m$values, 
+                                 nmark = 2, long_assoc = "FPC", M = 6,
+                                 FPC_bases = m$functions, FPC_evals = m$values,
                                  ncovar = 2,
                                  lambda = function(t, x) {
                                    1.65 * t^(0.65)
@@ -106,12 +107,13 @@ parallel_data <- function(i) {
                                  }),
                                  sigma = function(t, x) {
                                    log(0.06) + 0*t
-                                 }, 
-                                 tmax = NULL, seed = NULL, 
+                                 },
+                                 tmax = NULL, seed = NULL,
                                  full = TRUE, file = NULL)
-  
-  saveRDS(d_sim, file = file.path(results_wd, setting, "data",
-                                   paste0("d", i, ".rds")))
+
+  # Uncomment to save simulated data
+  # saveRDS(d_sim, file = file.path(results_wd, setting, "data",
+  #                                  paste0("d", i, ".rds")))
   NULL
 }
 

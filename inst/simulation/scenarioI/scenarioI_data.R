@@ -9,7 +9,7 @@
 
 # Specify location
 # setwd()
-# results_wd <- 
+# results_wd <-
 
 
 
@@ -31,13 +31,14 @@ start <- 100
 stop <- 299
 number_cores <- 5
 setting <- "scen_I"
-dir.create(file.path(results_wd, setting), showWarnings = FALSE)
-dir.create(file.path(results_wd, setting, "data"), showWarnings = FALSE)
-dir.create(file.path(results_wd, setting, "/bamlss_tru"), showWarnings = FALSE)
-dir.create(file.path(results_wd, setting, "/bamlss_est1"), showWarnings = FALSE)
-dir.create(file.path(results_wd, setting, "/bamlss_est99"), 
-           showWarnings = FALSE)
-dir.create(file.path(results_wd, setting, "/jmb"), showWarnings = FALSE)
+# Uncomment to create the structure of the simulated objects
+# dir.create(file.path(results_wd, setting), showWarnings = FALSE)
+# dir.create(file.path(results_wd, setting, "data"), showWarnings = FALSE)
+# dir.create(file.path(results_wd, setting, "/bamlss_tru"), showWarnings = FALSE)
+# dir.create(file.path(results_wd, setting, "/bamlss_est1"), showWarnings = FALSE)
+# dir.create(file.path(results_wd, setting, "/bamlss_est99"),
+#            showWarnings = FALSE)
+# dir.create(file.path(results_wd, setting, "/jmb"), showWarnings = FALSE)
 Sys.time()
 sessionInfo()
 
@@ -64,12 +65,12 @@ cov <- kronecker(cor, cross) + kronecker(diag(c(1, 1.2, 1.4, 1.6, 1.8, 2)), auto
 
 parallel_data <- function(i) {
   set.seed(i)
-  
+
   # Simulate the data
   d_rirs <- simMultiJM(
-    nsub = n, times = seq(0, 1, by = 0.01), 
+    nsub = n, times = seq(0, 1, by = 0.01),
     max_obs = 15, probmiss = 0.75, maxfac = 1.75,
-    nmark = 6, long_assoc = "param", M = NULL, 
+    nmark = 6, long_assoc = "param", M = NULL,
     FPC_bases = NULL, FPC_evals = NULL, mfpc_args = NULL,
     re_cov_mat = cov,
     ncovar = 2,
@@ -113,13 +114,14 @@ parallel_data <- function(i) {
     }),
     sigma = function(t, x) {
       log(0.06) + 0*t
-    }, 
-    tmax = NULL, seed = NULL, 
+    },
+    tmax = NULL, seed = NULL,
     full = TRUE, file = NULL
   )
-  
-  saveRDS(d_rirs, file = file.path(results_wd, setting, "data",
-                                   paste0("d", i, ".rds")))
+
+  # Uncomment to save the simulated data
+  # saveRDS(d_rirs, file = file.path(results_wd, setting, "data",
+  #                                  paste0("d", i, ".rds")))
   NULL
 }
 

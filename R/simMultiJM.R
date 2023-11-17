@@ -45,6 +45,59 @@
 #'   into (e.g., "simdata.RData") or NULL if the dataset should directly be
 #'   returned in R.
 #' @export
+#' @returns For \code{full = TRUE} a list of four \code{data.frames} is returned:
+#'    \describe{
+#'    \item{data}{Simulated dataset in long format including all longitudinal
+#'      and survival covariates.}
+#'    \item{data_full}{Simulated dataset on a grid of fixed time points.}
+#'    \item{data_hypo}{Simulated dataset on a grid of fixed time points with
+#'      hypothetical longitudinal outcomes after the event.}
+#'    \item{fpc_base}{If applicable, include the FPC basis used for simulation.}
+#'    \item{data_short}{Convenience output containing only one observation per
+#'      subject for easy access to event-times.}
+#' }
+#' For \code{full = FALSE} only the first dataset is returned.
+#' @examples
+#' # Number of individuals
+#' n <- 15
+#' # Covariance matrix for the data generation
+#' auto <- matrix(c(0.08, -0.07, -0.07, 0.9), ncol = 2)
+#' cross <- matrix(rep(0.03, 4), ncol = 2)
+#' cor <- matrix(c(0, 1, 0.75, 0.5, 0, 0,
+#'                 1, 0, 1, 0.75, 0.5, 0,
+#'                 0.75, 1, 0, 1, 0.75, 0.5,
+#'                 0.5, 0.75, 1, 0, 1, 0.75,
+#'                 0, 0.5, 0.75, 1, 0, 1,
+#'                 0, 0, 0.5, 0.75, 1, 0),
+#'               ncol = 6)
+#' cov <- kronecker(cor, cross) +
+#'     kronecker(diag(c(1, 1.2, 1.4, 1.6, 1.8, 2)), auto)
+#'
+#' # Simulate the data
+#' d_rirs <- simMultiJM(
+#'   nsub = n, times = seq(0, 1, by = 0.01), max_obs = 15, probmiss = 0.75,
+#'   maxfac = 1.75, nmark = 6, long_assoc = "param", M = NULL, FPC_bases = NULL,
+#'   FPC_evals = NULL, mfpc_args = NULL, re_cov_mat = cov, ncovar = 2,
+#'   lambda = function(t, x) {1.37 * t^(0.37)},
+#'   gamma = function(x) {-1.5 + 0.48*x[, 3]},
+#'   alpha = list(function(t, x) {1.5 + 0*t}, function(t, x) {0.6 + 0*t},
+#'                function(t, x) {0.3 + 0*t}, function(t, x) {-0.3 + 0*t},
+#'                function(t, x) {-0.6 + 0*t}, function(t, x) {-1.5 + 0*t}),
+#'   mu = list(function(t, x, r){
+#'     0 + 0.2*t - 0.25*x[, 3] - 0.05*t*x[, 3] + r[, 1] + r[, 2]*t
+#'   }, function(t, x, r){
+#'     0 + 0.2*t - 0.25*x[, 3] - 0.05*t*x[, 3] + r[, 3] + r[, 4]*t
+#'   }, function(t, x, r){
+#'     0 + 0.2*t - 0.25*x[, 3] - 0.05*t*x[, 3] + r[, 5] + r[, 6]*t
+#'   }, function(t, x, r){
+#'     0 + 0.2*t - 0.25*x[, 3] - 0.05*t*x[, 3] + r[, 7] + r[, 8]*t
+#'   }, function(t, x, r){
+#'     0 + 0.2*t - 0.25*x[, 3] - 0.05*t*x[, 3] + r[, 9] + r[, 10]*t
+#'   }, function(t, x, r){
+#'     0 + 0.2*t - 0.25*x[, 3] - 0.05*t*x[, 3] + r[, 11] + r[, 12]*t
+#'   }),
+#'   sigma = function(t, x) {log(0.06) + 0*t}, tmax = NULL, seed = NULL,
+#'   full = TRUE, file = NULL)
 simMultiJM <- function(nsub = 300, times = seq(0, 120, 1), probmiss = 0.75,
                        max_obs = length(times), maxfac = 1.5, nmark = 2,
                        long_assoc = c("FPC", "splines", "param"), M = 6,
