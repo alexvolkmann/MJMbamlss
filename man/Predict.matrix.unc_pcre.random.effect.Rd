@@ -16,7 +16,9 @@
 design matrix for PC-based functional random effects
 }
 \description{
-mgcv-style constructor for prediction of PC-basis functional random effects
+This predictor function uses time-information saved in the object. This is
+handled within the bamlss-transform function, so this function is not
+exported.
 }
 \author{
 Alexander Volkmann, adapted from 'Predict.matrix.pcre.random.effect

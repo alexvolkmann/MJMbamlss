@@ -329,8 +329,6 @@ MJM_mcmc <- function(x, y, family, start = NULL, weights = NULL, offset = NULL,
     # Rescale the gamma covariates samples
     gamma_bar <- x$gamma$smooth.construct$model.matrix$w_bar
     gamma_sd <- x$gamma$smooth.construct$model.matrix$w_sd
-    if (length(gamma_bar) > 1)
-      warning("Standardization is not tested for this case of gamma.")
     gamma_names <- colnames(x$gamma$smooth.construct$model.matrix$X)[-1]
     for (j in seq_along(gamma_names)) {
       gamma_col <- grep(paste0("gamma.+", gamma_names[j]), colnames(samps))

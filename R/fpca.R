@@ -2,7 +2,9 @@
 #'
 #' Decomposes functional observations using functional principal components
 #' analysis. A mixed model framework is used to estimate scores and obtain
-#' variance estimates.
+#' variance estimates. This function is a slightly adapted copy of the
+#' \code{\link[refund]{fpca.sc}} function in package \code{refund}
+#' (version 0.1-30).
 #'
 #' This function computes a FPC decomposition for a set of observed curves,
 #' which may be sparsely observed and/or measured with error. A mixed model
@@ -14,7 +16,7 @@
 #' \code{fpca.sc} uses penalized splines to smooth the covariance function, as
 #' developed by Di et al. (2009) and Goldsmith et al. (2013). This
 #' implementation uses REML and Cederbaum et al. (2018) for smoothing the
-#' covariance function
+#' covariance function.
 #'
 #' The functional data must be supplied as either \itemize{ \item an \eqn{n
 #' \times d} matrix \code{Y}, each row of which is one functional observation,
@@ -104,27 +106,6 @@
 #' Yao, F., Mueller, H.-G., and Wang, J.-L. (2005). Functional data analysis
 #' for sparse longitudinal data. \emph{Journal of the American Statistical
 #' Association}, 100, 577--590.
-#' @examples
-#' ## input a dataframe instead of a matrix
-#' nid <- 20
-#' nobs <- sample(10:20, nid, rep=TRUE)
-#' ydata <- data.frame(
-#'     .id = rep(1:nid, nobs),
-#'     .index = round(runif(sum(nobs), 0, 1), 3))
-#' ydata$.value <- unlist(tapply(ydata$.index,
-#'                               ydata$.id,
-#'                               function(x)
-#'                                   runif(1, -.5, .5) +
-#'                                   dbeta(x, runif(1, 6, 8), runif(1, 3, 5))
-#'                               )
-#'                        )
-#'
-#' Fit.MM = fpca.sc(ydata=ydata, var = TRUE, simul = FALSE)
-#' @export
-#' @importFrom Matrix nearPD Matrix t as.matrix
-#' @importFrom mgcv gam predict.gam bam
-#' @importFrom gamm4 gamm4
-#' @import sparseFLMM
 fpca <- function(Y = NULL, ydata = NULL, Y.pred = NULL, argvals = NULL,
                  argvals_obs = FALSE, argvals_pred = seq(0, 1, by = 0.01),
                  random.int = FALSE, nbasis = 10, nbasis_cov = nbasis,

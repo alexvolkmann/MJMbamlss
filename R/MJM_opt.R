@@ -161,7 +161,7 @@ MJM_opt <- function(x, y, start = NULL, eps = 0.0001, maxit = 1500,
   }
 
   # Compare if update increases logPost
-  get.log.prior <- utils::getFromNamespace("get.log.prior", bamlss)
+  get.log.prior <- utils::getFromNamespace("get.log.prior", "bamlss")
   LogPrioOLD <- get.log.prior(x)
   LogLikOLD <- get_LogLik(eta_timegrid, eta_T_mu, eta)
   etaUP <- eta

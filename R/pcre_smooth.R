@@ -12,21 +12,20 @@
 #' and \code{\link[refund]{smooth.construct.pcre.smooth.spec}} for the
 #' corresponding \code{refund} implementation.
 #'
+#' This is an internal function as the corresponding smooth object and its
+#' predict method is primarily used within the bamlss call.
+#'
 #' @param object a smooth specification object, see
 #'  \code{\link[mgcv]{smooth.construct}}
 #' @param data  see \code{\link[mgcv]{smooth.construct}}
 #' @param knots see \code{\link[mgcv]{smooth.construct}}
-#' @param ... see \code{\link[mgcv]{smooth.construct}}
-#' @method smooth.construct unc_pcre.smooth.spec
 #' @return An object of class \code{"random.effect"}. See
 #' \code{\link[mgcv]{smooth.construct}}
 #'  for the elements that this object will contain.
 #' @author Alexander Volkmann; adapted from 'pcre' constructor by F. Scheipl
 #'  (adapted from 're' constructor by S.N. Wood).
-#' @export
-#' @importFrom mgcv tensor.prod.model.matrix
-#' @importFrom stats as.formula model.matrix
-smooth.construct.unc_pcre.smooth.spec <- function(object, data, knots, ...) {
+#' @exportS3Method mgcv::smooth.construct unc_pcre.smooth.spec
+smooth.construct.unc_pcre.smooth.spec <- function(object, data, knots) {
   if (!is.null(object$id))
     stop("random effects don't work with ids.")
   form <- as.formula(
@@ -58,6 +57,10 @@ smooth.construct.unc_pcre.smooth.spec <- function(object, data, knots, ...) {
 
 #' mgcv-style constructor for prediction of PC-basis functional random effects
 #'
+#' This predictor function uses time-information saved in the object. This is
+#' handled within the bamlss-transform function, so this function is not
+#' exported.
+#'
 #' @param object a smooth specification object, see
 #'  \code{\link[mgcv]{smooth.construct}}
 #' @param data  see \code{\link[mgcv]{smooth.construct}}
@@ -65,8 +68,6 @@ smooth.construct.unc_pcre.smooth.spec <- function(object, data, knots, ...) {
 #' @author Alexander Volkmann, adapted from 'Predict.matrix.pcre.random.effect
 #'  by F. Scheipl (adapted from 'Predict.matrix.random.effect' by S.N. Wood).
 #' @export
-#' @importFrom stats model.matrix as.formula
-#' @importFrom mgcv tensor.prod.model.matrix Predict.matrix
 Predict.matrix.unc_pcre.random.effect <- function(object, data){
 
   if(is.null(object$xt$mfpc))

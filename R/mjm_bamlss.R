@@ -9,6 +9,19 @@
 #'
 #' @docType package
 #' @name varbinq
+#' @import bamlss
+#' @import stats
+#' @import coda
+#' @import utils
+#' @importFrom refund fpca.sc
+#' @importFrom fdapace FPCA
+#' @import MFPCA
+#' @importFrom Matrix nearPD Matrix t as.matrix
+#' @importFrom mgcv gam predict.gam bam
+#' @importFrom gamm4 gamm4
+#' @import sparseFLMM
+#' @importFrom mgcv tensor.prod.model.matrix Predict.matrix
+#' @importFrom stats as.formula model.matrix
 NULL
 
 #' Family for Flexible Multivariate Joint Model
@@ -23,22 +36,46 @@ NULL
 #' (2023).
 #' @param ... All arguments are actually hard coded as needed by the
 #'   implementation.
-#' @export
-#' @import bamlss
-#' @import stats
-#' @import coda
-#' @import utils
 #' @references Volkmann, A., Umlauf, N., Greven, S. (2023). Flexible joint
 #'   models for multivariate longitudinal and time-to-event data using
 #'   multivariate functional principal components. <arXiv:2311.06409>
 #' @returns An object of class \code{family.bamlss}.
 #' @examples
+#' library(mgcv)
+#' library(bamlss)
 #' data(pbc_subset)
 #' mfpca <- preproc_MFPCA(pbc_subset, uni_mean = paste0(
-#'     "logy ~ 1 + sex + drug + s(obstime, k = 10, bs = 'ps') + ",
-#'     "s(age, k = 10, bs = 'ps')"),
-#'     pve_uni = 0.99, nbasis = 5, weights = TRUE, save_uniFPCA = TRUE)
-#' pbc_subset <- attach_wfpc(mfpca, p_long, n = 3)
+#'   "logy ~ 1 + sex + drug + s(obstime, k = 5, bs = 'ps') + ",
+#'   "s(age, k = 5, bs = 'ps')"),
+#'   pve_uni = 0.99, nbasis = 5, weights = TRUE, save_uniFPCA = TRUE)
+#' pbc_subset <- attach_wfpc(mfpca, pbc_subset, n = 2)
+#' mfpca_list <- list(
+#'   list(functions = funData::extractObs(mfpca$functions, 1),
+#'        values = mfpca$values[1]),
+#'   list(functions = funData::extractObs(mfpca$functions, 2),
+#'        values = mfpca$values[2]))
+#'
+#' # Model formula
+#' f <- list(
+#'   Surv2(survtime, event, obs = logy) ~ -1 +
+#'     s(survtime, k = 5, bs = "ps", xt = list("scale" = FALSE)),
+#'   gamma ~ 1 + sex + drug + s(age, k = 5, bs = 'ps'),
+#'   mu ~ -1 + marker + sex:marker + drug:marker +
+#'     s(obstime, by = marker, xt = list("scale" = FALSE), k = 5, bs = "ps") +
+#'     s(age, by = marker, xt = list("scale" = FALSE), k = 5, bs = "ps") +
+#'     s(id, fpc.1, bs = "unc_pcre",
+#'       xt = list("mfpc" = mfpca_list[[1]], scale = "FALSE")) +
+#'     s(id, fpc.2, bs = "unc_pcre",
+#'       xt = list("mfpc" = mfpca_list[[2]], scale = "FALSE")),
+#'   sigma ~ -1 + marker,
+#'   alpha ~ -1 + marker
+#' )
+#'
+#' # Model fit
+#' b <- bamlss(f, family = mjm_bamlss, data = pbc_subset,
+#'             timevar = "obstime", maxit = 15, n.iter = 15, burnin = 2,
+#'             thin = 2)
+#' @export
 mjm_bamlss <- function(...)
 {
   links = c(

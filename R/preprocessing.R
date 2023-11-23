@@ -48,9 +48,6 @@
 #' @param save_uniGAM TRUE to attach list of univariate additive models used to
 #'  calculate the residuals. Defaults to FALSE.
 #' @export
-#' @importFrom refund fpca.sc
-#' @importFrom fdapace FPCA
-#' @import MFPCA
 #' @returns An object of class \code{MFPCAfit} with additional attributes
 #'  depending on the arguments \code{save_uniFPCA}, \code{save_uniGAM},
 #'  \code{fit}.
@@ -274,8 +271,6 @@ preproc_MFPCA <- function (data, uni_mean = "y ~ s(obstime) + s(x2)",
 #' @export
 #' @examples
 #' # Small example based on subset of PBC data
-#' library(MFPCA)
-#' library(bamlss)
 #' data(pbc_subset)
 #'
 #' # Estimate MFPC basis and attach to data
@@ -284,31 +279,6 @@ preproc_MFPCA <- function (data, uni_mean = "y ~ s(obstime) + s(x2)",
 #'     "s(age, k = 5, bs = 'ps')"),
 #'     pve_uni = 0.99, nbasis = 5, weights = TRUE, save_uniFPCA = TRUE)
 #' pbc_subset <- attach_wfpc(mfpca, pbc_subset, n = 2)
-#' mfpca_list <- list(
-#'   list(functions = funData::extractObs(mfpca$functions, 1),
-#'        values = mfpca$values[1]),
-#'   list(functions = funData::extractObs(mfpca$functions, 2),
-#'        values = mfpca$values[2]))
-#'
-#' # Model formula
-#' f <- list(
-#'   Surv2(survtime, event, obs = logy) ~ -1 +
-#'     s(survtime, k = 5, bs = "ps", xt = list("scale" = FALSE)),
-#'   gamma ~ 1 + s(age, k = 5, bs = "ps") + sex + drug,
-#'   mu ~ -1 + marker + sex:marker + drug:marker +
-#'     s(obstime, by = marker, xt = list('scale' = FALSE), k = 5, bs = 'ps') +
-#'     s(age, by = marker, xt = list('scale' = FALSE), k = 5, bs = 'ps') +
-#'     s(id, fpc.1, bs = 'unc_pcre',
-#'       xt = list('mfpc' = mfpca_list[[1]], 'scale' = FALSE)) +
-#'     s(id, fpc.2, bs = 'unc_pcre',
-#'       xt = list('mfpc' = mfpca_list[[1]], 'scale' = FALSE)),
-#'   sigma ~ -1 + marker,
-#'   alpha ~ -1 + marker
-#' )
-#'
-#' # Model fit
-#' b <- bamlss(f, family = mjm_bamlss, data = pbc_subset, timevar = "obstime",
-#'             maxit = 15, n.iter = 15, burnin = 2, thin = 2)
 attach_wfpc <- function(mfpca, data, n = NULL, obstime = "obstime",
                         marker = "marker", eval_weight = FALSE){
 

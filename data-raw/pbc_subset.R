@@ -33,7 +33,7 @@ p_long <- p_long %>%
   filter(id %in% which_mis) %>%
   droplevels()
 
-# Estimate the model using estimated FPCs
+# Remove observations with too little information
 few_obs <- apply(table(p_long$id, p_long$marker), 1,
                  function (x) any(x < 2))
 long_obs <- p_long %>%
@@ -53,5 +53,10 @@ pbc_subset <- p_long %>%
   filter(id %in% take) %>%
   filter(id %in% head(levels(id), n = 15))%>%
   droplevels()
+
+# Last longitudinal observation sets the limit for survival
+maxt <- max(pbc_subset$obstime)
+pbc_subset$survtime <- ifelse(pbc_subset$survtime > maxt , maxt,
+                              pbc_subset$survtime)
 
 usethis::use_data(pbc_subset, overwrite = TRUE)

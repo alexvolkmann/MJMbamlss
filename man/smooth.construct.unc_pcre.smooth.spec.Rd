@@ -4,7 +4,7 @@
 \alias{smooth.construct.unc_pcre.smooth.spec}
 \title{mgcv-style constructor for PC-basis functional random effects (no constraint)}
 \usage{
-\method{smooth.construct}{unc_pcre.smooth.spec}(object, data, knots, ...)
+\method{smooth.construct}{unc_pcre.smooth.spec}(object, data, knots)
 }
 \arguments{
 \item{object}{a smooth specification object, see
@@ -13,8 +13,6 @@
 \item{data}{see \code{\link[mgcv]{smooth.construct}}}
 
 \item{knots}{see \code{\link[mgcv]{smooth.construct}}}
-
-\item{...}{see \code{\link[mgcv]{smooth.construct}}}
 }
 \value{
 An object of class \code{"random.effect"}. See
@@ -29,6 +27,10 @@ See \code{\link[mgcv]{smooth.construct.re.smooth.spec}} for more details on
 \code{mgcv}-style smoother specification
 and \code{\link[refund]{smooth.construct.pcre.smooth.spec}} for the
 corresponding \code{refund} implementation.
+}
+\details{
+This is an internal function as the corresponding smooth object and its
+predict method is primarily used within the bamlss call.
 }
 \author{
 Alexander Volkmann; adapted from 'pcre' constructor by F. Scheipl

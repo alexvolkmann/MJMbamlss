@@ -104,7 +104,9 @@ critical values for constructing simultaneous confidence intervals.}
 \description{
 Decomposes functional observations using functional principal components
 analysis. A mixed model framework is used to estimate scores and obtain
-variance estimates.
+variance estimates. This function is a slightly adapted copy of the
+\code{\link[refund]{fpca.sc}} function in package \code{refund}
+(version 0.1-30).
 }
 \details{
 This function computes a FPC decomposition for a set of observed curves,
@@ -117,7 +119,7 @@ extended by Yao et al. (2005), who introduced the 'PACE' method.
 \code{fpca.sc} uses penalized splines to smooth the covariance function, as
 developed by Di et al. (2009) and Goldsmith et al. (2013). This
 implementation uses REML and Cederbaum et al. (2018) for smoothing the
-covariance function
+covariance function.
 
 The functional data must be supplied as either \itemize{ \item an \eqn{n
 \times d} matrix \code{Y}, each row of which is one functional observation,
@@ -125,23 +127,6 @@ with missing values allowed; or \item a data frame \code{ydata}, with
 columns \code{'.id'} (which curve the point belongs to, say \eqn{i}),
 \code{'.index'} (function argument such as time point \eqn{t}), and
 \code{'.value'} (observed function value \eqn{Y_i(t)}).}
-}
-\examples{
-## input a dataframe instead of a matrix
-nid <- 20
-nobs <- sample(10:20, nid, rep=TRUE)
-ydata <- data.frame(
-    .id = rep(1:nid, nobs),
-    .index = round(runif(sum(nobs), 0, 1), 3))
-ydata$.value <- unlist(tapply(ydata$.index,
-                              ydata$.id,
-                              function(x)
-                                  runif(1, -.5, .5) +
-                                  dbeta(x, runif(1, 6, 8), runif(1, 3, 5))
-                              )
-                       )
-
-Fit.MM = fpca.sc(ydata=ydata, var = TRUE, simul = FALSE)
 }
 \references{
 Cederbaum, J. Scheipl, F. and Greven, S. (2018). Fast symmetric
