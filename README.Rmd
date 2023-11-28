@@ -38,14 +38,11 @@ Please use the provided files in the folder inst/ as a reference for your analys
 
 ## Installation
 
-NOTE: For now, the package has unresolved Namespace-problems ('smooth.construct' is exported as a generic function by both 'mgcv' and 'bamlss'). Installation of this package via Github should work, as well as using the package for the analysis and simulation. A fix for the Namespace problem is under way.
+You can install the stable release version of MJMbamlss from [CRAN](https://cran.r-project.org/) with:
 
-
-<!-- You can install the stable release version of MJMbamlss from [CRAN](https://cran.r-project.org/) with: -->
-
-<!-- ``` r -->
-<!-- install.packages("MJMbamlss") -->
-<!-- ``` -->
+``` r
+install.packages("MJMbamlss")
+```
 
 
 You can install the development version of MJMbamlss from [GitHub](https://github.com/) with:

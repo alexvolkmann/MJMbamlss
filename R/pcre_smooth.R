@@ -17,15 +17,30 @@
 #'
 #' @param object a smooth specification object, see
 #'  \code{\link[mgcv]{smooth.construct}}
-#' @param data  see \code{\link[mgcv]{smooth.construct}}
-#' @param knots see \code{\link[mgcv]{smooth.construct}}
+#' @param data  see \code{\link[mgcv]{smooth.construct}}.
+#' @param knots see \code{\link[mgcv]{smooth.construct}}.
+#' @param ... see \code{\link[bamlss]{smooth.construct}}.
 #' @return An object of class \code{"random.effect"}. See
 #' \code{\link[mgcv]{smooth.construct}}
 #'  for the elements that this object will contain.
 #' @author Alexander Volkmann; adapted from 'pcre' constructor by F. Scheipl
 #'  (adapted from 're' constructor by S.N. Wood).
 #' @exportS3Method mgcv::smooth.construct unc_pcre.smooth.spec
-smooth.construct.unc_pcre.smooth.spec <- function(object, data, knots) {
+#' @examples
+#' data(pbc_subset)
+#' mfpca <- preproc_MFPCA(pbc_subset, uni_mean = paste0(
+#'   "logy ~ 1 + sex + drug + s(obstime, k = 5, bs = 'ps') + ",
+#'   "s(age, k = 5, bs = 'ps')"),
+#'   pve_uni = 0.99, nbasis = 5, weights = TRUE, save_uniFPCA = TRUE)
+#' pbc_subset <- attach_wfpc(mfpca, pbc_subset, n = 2)
+#' mfpca_list <- list(
+#'   list(functions = funData::extractObs(mfpca$functions, 1),
+#'        values = mfpca$values[1]),
+#'   list(functions = funData::extractObs(mfpca$functions, 2),
+#'        values = mfpca$values[2]))
+#' sm <- smoothCon(s(id, fpc.1, bs = "unc_pcre",
+#'       xt = list("mfpc" = mfpca_list[[1]], scale = "FALSE")), pbc_subset)
+smooth.construct.unc_pcre.smooth.spec <- function(object, data, knots, ...) {
   if (!is.null(object$id))
     stop("random effects don't work with ids.")
   form <- as.formula(
@@ -68,6 +83,23 @@ smooth.construct.unc_pcre.smooth.spec <- function(object, data, knots) {
 #' @author Alexander Volkmann, adapted from 'Predict.matrix.pcre.random.effect
 #'  by F. Scheipl (adapted from 'Predict.matrix.random.effect' by S.N. Wood).
 #' @export
+#' @examples
+#' data(pbc_subset)
+#' mfpca <- preproc_MFPCA(pbc_subset, uni_mean = paste0(
+#'   "logy ~ 1 + sex + drug + s(obstime, k = 5, bs = 'ps') + ",
+#'   "s(age, k = 5, bs = 'ps')"),
+#'   pve_uni = 0.99, nbasis = 5, weights = TRUE, save_uniFPCA = TRUE)
+#' pbc_subset <- attach_wfpc(mfpca, pbc_subset, n = 2)
+#' mfpca_list <- list(
+#'   list(functions = funData::extractObs(mfpca$functions, 1),
+#'        values = mfpca$values[1]),
+#'   list(functions = funData::extractObs(mfpca$functions, 2),
+#'        values = mfpca$values[2]))
+#' sm <- smoothCon(s(id, fpc.1, bs = "unc_pcre",
+#'       xt = list("mfpc" = mfpca_list[[1]], scale = "FALSE")), pbc_subset)[[1]]
+#' sm$timevar <- "obstime"
+#' sm$term <- c(sm$term, "obstime")
+#' pm <- PredictMat(sm, pbc_subset, n = 4*nrow(pbc_subset))
 Predict.matrix.unc_pcre.random.effect <- function(object, data){
 
   if(is.null(object$xt$mfpc))

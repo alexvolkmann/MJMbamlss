@@ -4,15 +4,17 @@
 \alias{smooth.construct.unc_pcre.smooth.spec}
 \title{mgcv-style constructor for PC-basis functional random effects (no constraint)}
 \usage{
-\method{smooth.construct}{unc_pcre.smooth.spec}(object, data, knots)
+\method{smooth.construct}{unc_pcre.smooth.spec}(object, data, knots, ...)
 }
 \arguments{
 \item{object}{a smooth specification object, see
 \code{\link[mgcv]{smooth.construct}}}
 
-\item{data}{see \code{\link[mgcv]{smooth.construct}}}
+\item{data}{see \code{\link[mgcv]{smooth.construct}}.}
 
-\item{knots}{see \code{\link[mgcv]{smooth.construct}}}
+\item{knots}{see \code{\link[mgcv]{smooth.construct}}.}
+
+\item{...}{see \code{\link[bamlss]{smooth.construct}}.}
 }
 \value{
 An object of class \code{"random.effect"}. See
@@ -31,6 +33,21 @@ corresponding \code{refund} implementation.
 \details{
 This is an internal function as the corresponding smooth object and its
 predict method is primarily used within the bamlss call.
+}
+\examples{
+data(pbc_subset)
+mfpca <- preproc_MFPCA(pbc_subset, uni_mean = paste0(
+  "logy ~ 1 + sex + drug + s(obstime, k = 5, bs = 'ps') + ",
+  "s(age, k = 5, bs = 'ps')"),
+  pve_uni = 0.99, nbasis = 5, weights = TRUE, save_uniFPCA = TRUE)
+pbc_subset <- attach_wfpc(mfpca, pbc_subset, n = 2)
+mfpca_list <- list(
+  list(functions = funData::extractObs(mfpca$functions, 1),
+       values = mfpca$values[1]),
+  list(functions = funData::extractObs(mfpca$functions, 2),
+       values = mfpca$values[2]))
+sm <- smoothCon(s(id, fpc.1, bs = "unc_pcre",
+      xt = list("mfpc" = mfpca_list[[1]], scale = "FALSE")), pbc_subset)
 }
 \author{
 Alexander Volkmann; adapted from 'pcre' constructor by F. Scheipl

@@ -20,6 +20,24 @@ This predictor function uses time-information saved in the object. This is
 handled within the bamlss-transform function, so this function is not
 exported.
 }
+\examples{
+data(pbc_subset)
+mfpca <- preproc_MFPCA(pbc_subset, uni_mean = paste0(
+  "logy ~ 1 + sex + drug + s(obstime, k = 5, bs = 'ps') + ",
+  "s(age, k = 5, bs = 'ps')"),
+  pve_uni = 0.99, nbasis = 5, weights = TRUE, save_uniFPCA = TRUE)
+pbc_subset <- attach_wfpc(mfpca, pbc_subset, n = 2)
+mfpca_list <- list(
+  list(functions = funData::extractObs(mfpca$functions, 1),
+       values = mfpca$values[1]),
+  list(functions = funData::extractObs(mfpca$functions, 2),
+       values = mfpca$values[2]))
+sm <- smoothCon(s(id, fpc.1, bs = "unc_pcre",
+      xt = list("mfpc" = mfpca_list[[1]], scale = "FALSE")), pbc_subset)[[1]]
+sm$timevar <- "obstime"
+sm$term <- c(sm$term, "obstime")
+pm <- PredictMat(sm, pbc_subset, n = 4*nrow(pbc_subset))
+}
 \author{
 Alexander Volkmann, adapted from 'Predict.matrix.pcre.random.effect
  by F. Scheipl (adapted from 'Predict.matrix.random.effect' by S.N. Wood).
