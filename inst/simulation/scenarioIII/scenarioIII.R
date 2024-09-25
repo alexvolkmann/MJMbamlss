@@ -9,10 +9,10 @@ i <- 1500
 n <- c(50, 250, 500)
 
 # Numbers of longitudinal markers
-k <- c(5, 10, 20)
+k <- c(5, 10, 15)
 
 # Correlation between markers
-r <- c(0.95, 0.5, 0.2)
+r <- c(0.9, 0.5, 0.2)
 
 # Marker sparsity
 nk <- c(5, 10, 20)
@@ -29,18 +29,18 @@ for (N in n) {
   }
 }
 
-B <- rep(list(funData::eFun(argvals, nb, type = "Fourier")), k[3])
+B <- rep(list(funData::eFun(argvals, nb, type = "FourierLin")), k[1])
 # autcor <- c(1, 0.8, 0.75)
 # crocor <- c(0.9, 0.8, 0.75)
 # a <- c(autcor,
 #        r[1] * rep(1/(2:k[1]), each = length(crocor)) *
 #          rep(crocor, k[1] - 1))
 
-fun <- Vectorize(function (x, rho, n) exp(1/(rho)^2*(1/(20*3) - x/(20*3))),
+fun <- Vectorize(function (x, rho) exp(1/(rho)^2*(1/(15*3) - x/(15*3))),
                  vectorize.args = "x")
-plot(1:(5*nb), fun(1:(5*nb), rho = 0.2, k = 2, nb = 3))
-eigen(toeplitz(fun(1:(5*nb), rho = 0.5, k = 2, nb = 3)))$values
-COV <- toeplitz(fun(1:(k[3]*nb), rho = r[1]))
+plot(1:(5*nb), fun(1:(5*nb), rho = 0.9))
+eigen(toeplitz(fun(1:(15*nb), rho = 0.5)))$values
+COV <- toeplitz(fun(1:(k[1]*nb), rho = r[1]))
 mfpca <- MFPCA_cov(cov = COV, basis_funs = B)
 plot(mfpca$functions, obs = 1:3)
 cumsum(mfpca$values) / sum(mfpca$values)
