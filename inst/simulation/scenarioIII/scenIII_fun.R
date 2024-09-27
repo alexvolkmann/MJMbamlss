@@ -188,7 +188,7 @@ sim_scen <- function (n, k, r, nk, ce, i) {
   t_est <- system.time(
     b_est <- bamlss(form, family = mjm_bamlss,
                     data = d,
-                    timevar = "obstime", maxit = 1500, n.iter = 5500,
+                    timevar = "obstime", maxit = 1500, n.iter = 3500,#5500,
                     burnin = 500, thin = 5, verbose = TRUE)
   )
   attr(b_est, "comp_time") <- t_est
@@ -204,4 +204,4 @@ sim_scen <- function (n, k, r, nk, ce, i) {
 }
 
 sim_scen(n = 100, k = 5, r = 0.9, nk = 0.9, ce = 2, i = 1)
-sim_scen(n = 100, k = 15, r = 0.9, nk = 0.9, ce = 2, i = 1)
+sim_scen(n = 100, k = 15, r = 0.9, nk = 0.75, ce = 2, i = 1)

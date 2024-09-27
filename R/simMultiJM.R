@@ -456,7 +456,8 @@ simMultiJM <- function(nsub = 300, times = seq(0, 120, 1), probmiss = 0.75,
 
   data_long <- do.call(rbind, rep(list(data_base), nmark))
   data_long$marker <- factor(rep(paste0("m", seq_len(nmark)),
-                                 each = length(id)))
+                                 each = length(id)),
+                             levels = paste0("m", seq_len(nmark)))
   data_long$mu <- do.call(c, mu_fun(data_base$obstime, x[id, ], r[id,], mu,
                                     b_set))
   data_long$alpha <- do.call(c, lapply(alpha, function(alpha_k) {
