@@ -75,7 +75,7 @@ preproc_MFPCA <- function (data, uni_mean = "y ~ s(obstime) + s(x2)",
 
   }
 
-  marker_dat <- split(data, data$marker)
+  marker_dat <- split(data, data[, marker])
 
 
   # Check whether enough observations are available on each marker to be able

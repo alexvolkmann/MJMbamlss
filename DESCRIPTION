@@ -1,7 +1,7 @@
 Package: MJMbamlss
 Type: Package
 Title: Multivariate Joint Models with 'bamlss'
-Version: 0.1.0.9000
+Version: 0.1.0.9001
 Authors@R: c(person(given = "Nikolaus", family = "Umlauf", role = c("aut"), email = "Nikolaus.Umlauf@uibk.ac.at",
          comment = c(ORCID = "0000-0003-2160-9803")),
 	person("Alexander", "Volkmann", email = "alexander.volkmann@hu-berlin.de", role = c("aut", "cre")))
