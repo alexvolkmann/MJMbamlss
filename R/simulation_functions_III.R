@@ -59,14 +59,10 @@ sim_fun <- function (it, n, k, r, nk, ce, type = "Own2", nb = 3, alpha,
              showWarnings = FALSE)
   dir.create(file.path(results_wd, scen, model),
              showWarnings = FALSE)
-  dir.create(file.path(results_wd, scen, "eval"),
-             showWarnings = FALSE)
-  dir.create(file.path(results_wd, scen, "eval", model),
-             showWarnings = FALSE)
 
   # Generate (if it doesn't yet exist) or load the data
   set.seed(it)
-  data_file <- file.path(results_wd, scen, "data", paste0("dat", it, ".rds"))
+  data_file <- file.path(results_wd, scen, "data", paste0("d", it, ".rds"))
   if (!file.exists(data_file)) {
     d_sim <- generate_data(results_wd, scen, k, type, nb, r, it, n, nk, ce,
                             gamma, alpha)
@@ -92,15 +88,16 @@ sim_fun <- function (it, n, k, r, nk, ce, type = "Own2", nb = 3, alpha,
     t_jm <- system.time({
       CoxFit <- coxph(Surv(survtime, event) ~ x3,
                       data = d_sim$data_short %>% filter(marker == "m1"))
-      lm1 <- lme(m1 ~ obstime * x3,
-                 random = ~ bs(obstime, df = 3, Boundary.knots = c(0, 1)) | id,
-                 data = d_sim_jmb, na.action = na.omit,
-                 control = lmeControl(opt = "optim"))
-      lm2 <- lme(m2 ~ obstime * x3,
-                 random = ~ bs(obstime, df = 3, Boundary.knots = c(0, 1)) | id,
-                 data = d_sim_jmb, na.action = na.omit,
-                 control = lmeControl(opt = "optim"))
-      jmb <- jm(CoxFit, list(lm1, lm2), time_var = "obstime",
+      lme_list <- lapply(seq_len(k), function (i) {
+          form <- as.formula(paste0(paste0("m", i), "~ obstime * x3"))
+          assign(
+            paste0("lm", i),
+            lme(fixed = form,
+                random = ~ bs(obstime, df = 3, Boundary.knots = c(0, 1)) | id,
+                data = d_sim_jmb, na.action = na.omit,
+                control = lmeControl(opt = "optim")))
+      })
+      jmb <- jm(CoxFit, lme_list, time_var = "obstime",
                 n_iter = 5500L, n_burnin = 500L, n_thin = 5L,
                 cores = 1, n_chains = 1,
                 GK_k = 7, Bsplines_degree = 3, diff = 2, knots = list(kn),
@@ -222,7 +219,7 @@ generate_data <- function (results_wd, scen, k, type, nb, r, it, n, nk, ce,
 
   saveRDS(d_sim,
           file = file.path(results_wd, scen, "data",
-                           paste0("dat", it, ".rds")))
+                           paste0("d", it, ".rds")))
   d_sim
 
 }
@@ -334,3 +331,64 @@ estimate_mfpc_basis <- function (data, n_min = 3, minmaxobs_long = 0.1,
 toeplitzfun <- Vectorize(function (x, rho) {
   exp(1 / (rho)^2 * (1/(20*3) - x/(20*3)))
 }, vectorize.args = "x")
+
+
+
+# Functions for Evaluation ------------------------------------------------
+
+#' Function to Simplify the Evaluation of Simulation Scenarios
+#'
+#' This function is a helperfunction to evaluate all the predicted models of one
+#' specific model specification and saves it in the respective folder.
+#'
+#' @param wd Path to simulations folder.
+#' @param model_wd Simulation setting folder where the models are saved.
+#' @param JMBayes TRUE if the package JMBayes2 is to be used for the model fit.
+#'  Defaults to FALSE, which corresponds to MJMbamlss using MFPCs.
+#'
+#' @returns NULL. Saves the predictions and evaluations of the simulation runs.
+evaluate_sim_setting <- function(wd, model_wd, JMBayes = FALSE) {
+
+
+  m_wd <- if (substr(model_wd, nchar(model_wd)-1, nchar(model_wd)) != "\\") {
+    file.path(model_wd, "")
+  } else model_wd
+  s_wd <- if (substr(wd, nchar(wd)-1, nchar(wd)) != "\\") {
+    file.path(wd, "")
+  } else wd
+
+  # Create the folder for saving the evaluations
+  dir.create(file.path(wd, "eval"), showWarnings = FALSE)
+  dir.create(file.path(wd, "eval", "predictions"), showWarnings = FALSE)
+  dir.create(file.path(wd, "eval", "evaluations"), showWarnings = FALSE)
+
+  # Predict all of the models in the folder
+  model_files <- list.files(path = file.path(wd, model_wd))
+
+  if (JMBayes) {
+    preds <- MJMbamlss:::sim_jmb_predict(
+      m = model_files, wd = s_wd, model_wd = m_wd,
+      data_wd = file.path("data", "")
+    )
+  } else {
+    preds <- MJMbamlss:::sim_bamlss_predict(
+      m = model_files, wd = s_wd, model_wd = m_wd,
+      data_wd = file.path("data", "")
+    )
+  }
+  saveRDS(preds, file = file.path(wd, "eval", "predictions",
+                                  paste0("p_", model_wd,".rds")))
+
+  # Evaluate all of the models
+  it_list <- MJMbamlss:::sim_results(lapply(preds, "[[", "predictions"),
+                                     lapply(preds, "[[", "simulations"),
+                                     name = model_wd)
+  evals <- do.call(rbind, Map(cbind, it = sub("\\.rds", "", names(it_list)),
+                              it_list))
+  saveRDS(evals,
+          file = file.path(wd, "eval", "evaluations",
+                           paste0("e_", model_wd, ".rds")))
+  NULL
+
+}
+
