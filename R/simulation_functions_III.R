@@ -95,7 +95,7 @@ sim_fun <- function (it, n, k, r, nk, ce, type = "Own2", nb = 3, alpha,
             lme(fixed = form,
                 random = ~ bs(obstime, df = 3, Boundary.knots = c(0, 1)) | id,
                 data = d_sim_jmb, na.action = na.omit,
-                control = lmeControl(opt = "optim")))
+                control = lmeControl(opt = "optim", returnObject = TRUE)))
       })
       jmb <- jm(CoxFit, lme_list, time_var = "obstime",
                 n_iter = 5500L, n_burnin = 500L, n_thin = 5L,
