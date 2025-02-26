@@ -1,3 +1,5 @@
+
+# .libPaths(...)
 # library(devtools)
 # install_github("alexvolkmann/MJMbamlss")
 # Always
@@ -48,33 +50,37 @@ setting_args <- expand.grid(n = N, k = K, r = R, nk = NK, ce = CE)
 
 # Simulation Setting Function ---------------------------------------------
 
-run_simulation_setting <- function(its, n, k, r, nk, ce, results_wd) {
+run_simulation_setting <- function(its, n, k, r, nk, ce, results_wd,
+                                   gamma = -2 - (k %/% 3)) {
 
   # Run the models for all iterations
   for (i in its) {
 
-    mjm_true <- sim_fun(i, n, k, r, nk, ce, type = "Own2", nb = 3,
+    mjm_true <- MJMbamlss:::sim_fun(i, n, k, r, nk, ce, type = "Own2", nb = 3,
                         alpha = c(1, 0.75, 0.5),
+                        gamma = -2 - (k %/% 3),
                         mfpc_true = TRUE,
                         mfpc_truncation = 1L,
                         JMBayes = FALSE,
                         results_wd = results_wd)
 
-    jmb <- sim_fun(i, n, k, r, nk, ce, type = "Own2", nb = 3,
+    jmb <- MJMbamlss:::sim_fun(i, n, k, r, nk, ce, type = "Own2", nb = 3,
                    alpha = c(1, 0.75, 0.5),
+                   gamma = -2 - (k %/% 3),
                    mfpc_true = TRUE,
                    mfpc_truncation = 1L,
                    JMBayes = TRUE,
                    results_wd = results_wd)
 
-    mjm_est <- sim_fun(i, n, k, r, nk, ce, type = "Own2", nb = 3,
+    mjm_est <- MJMbamlss:::sim_fun(i, n, k, r, nk, ce, type = "Own2", nb = 3,
                        alpha = c(1, 0.75, 0.5),
+                       gamma = -2 - (k %/% 3),
                        mfpc_true = FALSE,
                        mfpc_truncation = 1L,
                        JMBayes = FALSE,
                        results_wd = results_wd)
 
-    mjm_tr99 <- sim_fun(i, n, k, r, nk, ce, type = "Own2", nb = 3,
+    mjm_tr99 <- MJMbamlss:::sim_fun(i, n, k, r, nk, ce, type = "Own2", nb = 3,
                         alpha = c(1, 0.75, 0.5),
                         mfpc_true = TRUE,
                         mfpc_truncation = 0.99,
@@ -89,22 +95,22 @@ run_simulation_setting <- function(its, n, k, r, nk, ce, results_wd) {
                 gamma, sep = "_")
   model <- paste("mod", if(JMBayes) "jmb" else "mjm", mfpc_true,
                  mfpc_truncation, sep = "_")
-  eval_true <- evaluate_sim_setting(
+  eval_true <- MJMbamlss:::evaluate_sim_setting(
     wd = file.path(results_wd, scen),
     model_wd = paste("mod", "mjm", TRUE, 1, sep = "_"),
     JMBayes = FALSE
   )
-  eval_jmb <- evaluate_sim_setting(
+  eval_jmb <- MJMbamlss:::evaluate_sim_setting(
     wd = file.path(results_wd, scen),
     model_wd = paste("mod", "jmb", TRUE, 1, sep = "_"),
     JMBayes = FALSE
   )
-  eval_est <- evaluate_sim_setting(
+  eval_est <- MJMbamlss:::evaluate_sim_setting(
     wd = file.path(results_wd, scen),
     model_wd = paste("mod", "mjm", FALSE, 1, sep = "_"),
     JMBayes = FALSE
   )
-  eval_est <- evaluate_sim_setting(
+  eval_est <- MJMbamlss:::evaluate_sim_setting(
     wd = file.path(results_wd, scen),
     model_wd = paste("mod", "mjm", FALSE, 0.99, sep = "_"),
     JMBayes = FALSE
