@@ -87,7 +87,8 @@ sim_fun <- function (it, n, k, r, nk, ce, type = "Own2", nb = 3, alpha,
       pivot_wider(names_from = marker, values_from = y)
     t_jm <- system.time({
       CoxFit <- coxph(Surv(survtime, event) ~ x3,
-                      data = d_sim$data_short %>% filter(marker == "m1"))
+                      data = d_sim$data_short %>%
+                        dplyr::filter(marker == "m1"))
       lme_list <- lapply(seq_len(k), function (i) {
           form <- as.formula(paste0(paste0("m", i), "~ obstime * x3"))
           assign(
@@ -307,7 +308,7 @@ estimate_mfpc_basis <- function (data, n_min = 3, minmaxobs_long = 0.1,
       ungroup(marker) %>%
       summarize(minmaxobs = min(maxobs), .groups = "drop_last") %>%
       ungroup() %>%
-      filter(minmaxobs > minmaxobs_long) %>%
+      dplyr::filter(minmaxobs > minmaxobs_long) %>%
       select(id) %>%
       unlist() %>%
       paste()
@@ -315,7 +316,7 @@ estimate_mfpc_basis <- function (data, n_min = 3, minmaxobs_long = 0.1,
 
     mfpca_est <- preproc_MFPCA(
       data %>%
-        filter(id %in% take) %>%
+        dplyr::filter(id %in% take) %>%
         droplevels(),
       uni_mean = "y ~ 1 + obstime + x3 + obstime:x3",
       npc = npcs, nbasis = n_basis
